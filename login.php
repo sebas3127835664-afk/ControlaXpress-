@@ -1,4 +1,9 @@
 <?php
+// Forzar longitud de ID de sesión en 64 caracteres (≈256 bits)
+ini_set('session.sid_length', 64);
+ini_set('session.sid_bits_per_character', 6);
+
+// Iniciar sesión segura
 session_start();
 
 /**
@@ -38,11 +43,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['loggedin'] = true;
+                $_SESSION['token'] = session_id(); // ← Aquí guardamos el token de 64 bits
 
-                // Guardar último inicio
-                $sql_update = "UPDATE login_user SET last_login = NOW() WHERE id = ?";
+                // Guardar último inicio + token + contador de logins
+                $sid = $_SESSION['token'];
+                $sql_update = "UPDATE login_user 
+                               SET last_login = NOW(), session_id = ?, login_count = login_count + 1 
+                               WHERE id = ?";
                 $stmt_update = $conn->prepare($sql_update);
-                $stmt_update->bind_param("i", $user['id']);
+                $stmt_update->bind_param("si", $sid, $user['id']);
                 $stmt_update->execute();
 
                 header("Location: conexionBD_leer_registrar_eliminar_editar_css.php");

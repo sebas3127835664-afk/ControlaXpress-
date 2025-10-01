@@ -1,4 +1,3 @@
-```php
 <?php
 // ================= CONEXIÓN ===================
 $servername = "localhost";
@@ -40,7 +39,7 @@ if (isset($_POST['crear'])) {
     $stmt->execute();
     $stmt->close();
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?mensaje=creado");
     exit;
 }
 
@@ -84,7 +83,7 @@ if (isset($_POST['editar'])) {
     $stmt->execute();
     $stmt->close();
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?mensaje=editado");
     exit;
 }
 
@@ -107,7 +106,7 @@ if (isset($_GET['eliminar'])) {
     $stmt->execute();
     $stmt->close();
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?mensaje=eliminado");
     exit;
 }
 
@@ -126,6 +125,7 @@ $result = $conn->query("SELECT * FROM productos ORDER BY id DESC");
   --accent:#1890ff;
   --danger:#ff4d4f;
   --muted:#666;
+  --success:#4CAF50;
 }
 body {font-family:sans-serif;margin:20px;background:#fdfdfd;}
 h1 {margin:0 0 20px}
@@ -144,11 +144,26 @@ img.thumb {width:60px;height:60px;object-fit:cover;border-radius:6px;}
 .modal-content {background:#fff;padding:20px;border-radius:8px;width:400px;max-width:90%;}
 .modal-content h3 {margin-top:0;}
 .close {float:right;font-size:18px;cursor:pointer;}
+/* Alert */
+.alert {padding:12px;margin-bottom:20px;border-radius:6px;}
+.alert.success {background:#dff0d8;color:#3c763d;}
+.alert.danger {background:#f2dede;color:#a94442;}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Gestión de Productos</h1>
+
+  <!-- Mensajes -->
+  <?php if (isset($_GET['mensaje'])): ?>
+    <?php if ($_GET['mensaje'] == 'creado'): ?>
+      <div class="alert success">✅ Producto creado correctamente.</div>
+    <?php elseif ($_GET['mensaje'] == 'editado'): ?>
+      <div class="alert success">✅ Producto actualizado correctamente.</div>
+    <?php elseif ($_GET['mensaje'] == 'eliminado'): ?>
+      <div class="alert danger">🗑️ Producto eliminado correctamente.</div>
+    <?php endif; ?>
+  <?php endif; ?>
 
   <div class="card">
     <h3>Agregar Nuevo Producto</h3>
@@ -248,4 +263,3 @@ function cerrarModal(){
 </script>
 </body>
 </html>
-```

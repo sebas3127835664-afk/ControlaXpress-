@@ -41,7 +41,8 @@ if (isset($_GET['logout'])) {
  */
 function consultarBD() {
     $conn = conectarBD();
-    $sql = "SELECT id, username, password, created_at, updated_at, last_login, last_logout FROM login_user";
+    $sql = "SELECT id, username, password, created_at, updated_at, last_login, last_logout, session_id, login_count 
+            FROM login_user";
     $result = $conn->query($sql);
     return $result;
 }
@@ -107,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar'])) {
     if ($stmt_check->num_rows > 0) {
         echo "<h3 style='color:red;'>El nombre de usuario ya existe.</h3>";
     } else {
-        $sql = "INSERT INTO login_user (username, password, created_at, updated_at) VALUES (?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO login_user (username, password, created_at, updated_at, login_count) VALUES (?, ?, NOW(), NOW(), 0)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $user, $password);
         if ($stmt->execute()) {
@@ -163,6 +164,8 @@ $result = consultarBD();
             <th>Actualizado</th>
             <th>Último Inicio</th>
             <th>Último Cierre</th>
+            <th>Sesión ID</th>
+            <th>Conexiones</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -177,6 +180,8 @@ $result = consultarBD();
                     <td><?php echo htmlspecialchars($row['updated_at']); ?></td>
                     <td><?php echo $row['last_login'] ? htmlspecialchars($row['last_login']) : '-'; ?></td>
                     <td><?php echo $row['last_logout'] ? htmlspecialchars($row['last_logout']) : '-'; ?></td>
+                    <td><?php echo $row['session_id'] ? htmlspecialchars($row['session_id']) : '-'; ?></td>
+                    <td><?php echo htmlspecialchars($row['login_count']); ?></td>
                     <td>
                         <form method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar este usuario?');">
                             <input type="hidden" name="eliminar_id" value="<?php echo $row['id']; ?>">
@@ -190,7 +195,7 @@ $result = consultarBD();
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="8" style="text-align:center;">No hay usuarios registrados</td></tr>
+            <tr><td colspan="10" style="text-align:center;">No hay usuarios registrados</td></tr>
         <?php endif; ?>
     </tbody>
 </table>
